@@ -1,5 +1,9 @@
 * TODO
 
-- [ ] User.find(8) などの対応
-- [ ] User.all などの対応
-- [ ] User.where などの対応
+以下の対応
+
+- [ ] User.find(8)
+- [ ] User.find_by(5)
+- [ ] User.find([8, 9, 10])
+- [ ] User.all
+- [ ] User.where

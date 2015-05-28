@@ -94,5 +94,16 @@ RSpec.describe ActiveRecordSharding::Model do
       expect(User.create.class).to connect_to('user_shard_2.sqlite3')
       expect(User.create.class).to connect_to('user_shard_3.sqlite3')
     end
+
+    # it "" do
+    #   expect(User.find(1).class).to eq User
+    #   expect(User.find(2).class).to eq User
+    #   expect(User.find(3).class).to eq User
+    # end
+
+    # it "" do
+    #   expect(User.find([1, 2, 3]).class).to eq Array
+    # end
+
   end
 end
