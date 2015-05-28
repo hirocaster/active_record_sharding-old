@@ -1,0 +1,5 @@
+* TODO
+
+- [ ] User.find(8) などの対応
+- [ ] User.all などの対応
+- [ ] User.where などの対応
