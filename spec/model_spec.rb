@@ -84,6 +84,15 @@ end
 RSpec.describe ActiveRecordSharding::Model do
   it "default connection" do
     expect(Book).to connect_to('default.sqlite3')
-    binding.pry
+  end
+
+  context "User sharding" do
+    it "shard_1, shard_2, shard_3" do
+      expect(User.create.class).to connect_to('user_shard_2.sqlite3')
+      expect(User.create.class).to connect_to('user_shard_3.sqlite3')
+      expect(User.create.class).to connect_to('user_shard_1.sqlite3')
+      expect(User.create.class).to connect_to('user_shard_2.sqlite3')
+      expect(User.create.class).to connect_to('user_shard_3.sqlite3')
+    end
   end
 end
