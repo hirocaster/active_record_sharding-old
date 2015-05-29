@@ -19,6 +19,6 @@ ActiveSupport.on_load(:active_record) do
     end
   end
 
-  require "active_record_sharding/core"
-  ActiveRecord::Base.send(:include, ActiveRecordSharding::Core)
+  require "active_record_sharding/base"
+  ActiveRecord::Base.send(:include, ActiveRecordSharding::Base)
 end

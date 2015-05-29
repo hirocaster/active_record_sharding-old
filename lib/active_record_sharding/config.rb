@@ -10,6 +10,10 @@ module ActiveRecordSharding
       instance.shard_connection_names(name)
     end
 
+    def self.shards
+      instance.shards
+    end
+
     def shard_count(name)
       shards[name].count
     end

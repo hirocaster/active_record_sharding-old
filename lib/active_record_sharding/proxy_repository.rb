@@ -10,18 +10,18 @@ module ActiveRecordSharding
       instance.checkout(name, id)
     end
 
-    def self.find(name)
-      instance.find(name)
-    end
-
     def checkout(name, id)
       id = 0 unless id
       proxies["#{name}_#{id.modulo(Config.shard_count(name))}"] ||= Proxy.new(name, id)
     end
 
-    def find(name)
-      proxies.fetch(name)
-    end
+    # def self.find(name)
+    #   instance.find(name)
+    # end
+
+    # def find(name)
+    #   proxies.fetch(name)
+    # end
 
     def proxies
       @proxies ||= {}

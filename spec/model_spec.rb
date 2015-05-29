@@ -114,9 +114,17 @@ RSpec.describe ActiveRecordSharding::Model do
         expect(User.find_by(3).id).to eq 3
       end
 
-      it "#find(Array)" do
-        pending "will support"
-        expect(User.find([1, 2, 3]).class).to eq Array
+      # it "#find(Array)" do
+      #   pending "will support"
+      #   expect(User.find([1, 2, 3]).class).to eq Array
+      # end
+
+      it "#all_shard" do
+        expect(User.all_shard.class).to eq Array
+        expect(User.all_shard.count).to eq 5
+        User.all.each do |user|
+          expect(user.class).to eq User
+        end
       end
     end
   end
