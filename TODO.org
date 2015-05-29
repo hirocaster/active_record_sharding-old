@@ -6,4 +6,5 @@
 - [x] User.find_by(5)
 - [ ] User.find([8, 9, 10])
 - [x] User.all -> User.all_shard
-- [ ] User.where
+- [x] User.where
+- [ ] リレーション関係

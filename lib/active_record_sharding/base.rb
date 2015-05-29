@@ -30,7 +30,7 @@ module ActiveRecordSharding
       end
 
       def all_shard
-        if @shard_name && !current_scope
+        if @shard_name
           (1..Config.shards[@shard_name].count).map do |id|
             self.sequence_id = id
             all.to_a

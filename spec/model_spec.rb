@@ -65,9 +65,9 @@ RSpec.configure do |config|
     ActiveRecord::Base.establish_connection(:user_sequence).connection.execute('CREATE TABLE user_sequence (id integer primary key autoincrement)')
     ActiveRecord::Base.establish_connection(:user_sequence).connection.execute('INSERT INTO user_sequence (id) VALUES (0)')
 
-    ActiveRecord::Base.establish_connection(:user_shard_1).connection.execute('CREATE TABLE users (id integer primary key autoincrement)')
-    ActiveRecord::Base.establish_connection(:user_shard_2).connection.execute('CREATE TABLE users (id integer primary key autoincrement)')
-    ActiveRecord::Base.establish_connection(:user_shard_3).connection.execute('CREATE TABLE users (id integer primary key autoincrement)')
+    ActiveRecord::Base.establish_connection(:user_shard_1).connection.execute('CREATE TABLE users (id integer primary key autoincrement, name string)')
+    ActiveRecord::Base.establish_connection(:user_shard_2).connection.execute('CREATE TABLE users (id integer primary key autoincrement, name string)')
+    ActiveRecord::Base.establish_connection(:user_shard_3).connection.execute('CREATE TABLE users (id integer primary key autoincrement, name string)')
 
     ActiveRecord::Base.establish_connection(:default)
     Book.connection.execute('CREATE TABLE books (id integer primary key autoincrement)')
@@ -88,30 +88,36 @@ RSpec.describe ActiveRecordSharding::Model do
 
   context "User sharding" do
     it "shard_1, shard_2, shard_3" do
-      expect(User.create.class).to connect_to('user_shard_2.sqlite3')
-      expect(User.create.class).to connect_to('user_shard_3.sqlite3')
-      expect(User.create.class).to connect_to('user_shard_1.sqlite3')
-      expect(User.create.class).to connect_to('user_shard_2.sqlite3')
-      expect(User.create.class).to connect_to('user_shard_3.sqlite3')
+      expect(User.create(name: "alice").class).to connect_to('user_shard_2.sqlite3')
+      expect(User.create(name: "bob").class).to connect_to('user_shard_3.sqlite3')
+      expect(User.create(name: "carol").class).to connect_to('user_shard_1.sqlite3')
+      expect(User.create(name: "dave").class).to connect_to('user_shard_2.sqlite3')
+      expect(User.create(name: "ellen").class).to connect_to('user_shard_3.sqlite3')
     end
 
     context "Created users" do
       it "#find(Fixnum)" do
         expect(User.find(1).class).to eq User
         expect(User.find(1).id).to eq 1
+        expect(User.find(1).name).to eq "alice"
         expect(User.find(2).class).to eq User
         expect(User.find(2).id).to eq 2
+        expect(User.find(2).name).to eq "bob"
         expect(User.find(3).class).to eq User
         expect(User.find(3).id).to eq 3
+        expect(User.find(3).name).to eq "carol"
       end
 
       it "#find_by(Fixnum)" do
         expect(User.find_by(1).class).to eq User
         expect(User.find_by(1).id).to eq 1
+        expect(User.find_by(1).name).to eq "alice"
         expect(User.find_by(2).class).to eq User
         expect(User.find_by(2).id).to eq 2
+        expect(User.find_by(2).name).to eq "bob"
         expect(User.find_by(3).class).to eq User
         expect(User.find_by(3).id).to eq 3
+        expect(User.find_by(3).name).to eq "carol"
       end
 
       # it "#find(Array)" do
@@ -125,6 +131,20 @@ RSpec.describe ActiveRecordSharding::Model do
         User.all.each do |user|
           expect(user.class).to eq User
         end
+      end
+
+      it "#where.#all_shard" do
+        alice = User.where(name: "alice").all_shard.first
+        expect(alice.class).to eq User
+        expect(alice.name).to eq "alice"
+
+        bob = User.where(name: "bob").all_shard.first
+        expect(bob.class).to eq User
+        expect(bob.name).to eq "bob"
+
+        carol = User.where(name: "carol").all_shard.first
+        expect(carol.class).to eq User
+        expect(carol.name).to eq "carol"
       end
     end
   end
