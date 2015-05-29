@@ -101,20 +101,22 @@ RSpec.describe ActiveRecordSharding::Model do
       alice = User.create(name: "alice")
       expect(alice.class).to connect_to('user_shard_2.sqlite3')
 
-      alice_profile = Article.create(title: "Alice profile", body: "Alice profile text")
+      alice_profile = Article.new(title: "Alice profile", body: "Alice profile text")
       alice.articles << alice_profile
+      expect(alice_profile.class).to connect_to('user_shard_2.sqlite3')
       expect(alice.articles.count).to eq 1
 
+      bob_profile = Article.create(title: "Bob profile", body: "Bob profile text", user_id: 2)
+      expect(bob_profile.class).to connect_to('user_shard_3.sqlite3')
       bob = User.create(name: "bob")
       expect(bob.class).to connect_to('user_shard_3.sqlite3')
-      bob_profile = Article.create(title: "Bob profile", body: "Bob profile text")
       bob.articles << bob_profile
       expect(bob.articles.count).to eq 1
       expect(Article.all_shard.count).to eq 2
 
       carol = User.create(name: "carol")
       expect(carol.class).to connect_to('user_shard_1.sqlite3')
-      carol_profile = Article.create(title: "Carol profile", body: "Carol profile text")
+      carol_profile = Article.new(title: "Carol profile", body: "Carol profile text")
       carol.articles << carol_profile
       expect(carol.articles.count).to eq 1
       expect(Article.all_shard.count).to eq 3
@@ -123,7 +125,19 @@ RSpec.describe ActiveRecordSharding::Model do
       expect(User.create(name: "ellen").class).to connect_to('user_shard_3.sqlite3')
     end
 
+    it "raise not set user_id(shard key) create record for shard" do
+      expect do
+        Article.create(title: "Bob profile", body: "Bob profile text")
+      end.to raise_error(ActiveRecordSharding::NotFoundShardKeyError, "Please, set user_id.")
+    end
+
     context "Created users" do
+
+      it "one query" do
+        # FIXME: write test
+        Article.where(user_id: 1).all_shard
+      end
+
       it "#find(Fixnum)" do
         expect(User.find(1).class).to eq User
         expect(User.find(1).id).to eq 1

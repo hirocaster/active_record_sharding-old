@@ -18,11 +18,17 @@ module ActiveRecordSharding
         private
 
         def set_sequence_id_for_primary_key
-          if self.class.shard_name &&
-             self.class.shard_name.to_s.camelize.singularize == self.class.name
-            if new_record?
+          if self.class.shard_name && new_record?
+            if self.class.shard_name.to_s.camelize.singularize == self.class.name
               self.id = self.class.next_sequence_id
               self.class.sequence_id = self.id
+            else
+              shard_sequence_id = self.send("#{self.class.shard_name.to_s}_id")
+              unless shard_sequence_id
+                raise NotFoundShardKeyError, "Please, set #{self.class.shard_name.to_s}_id."
+              end
+              self.class.sequence_id = shard_sequence_id
+              # self.class.sequence_id = self.class.shard_name.to_s.classify.constantize.sequence_id
             end
           end
         end

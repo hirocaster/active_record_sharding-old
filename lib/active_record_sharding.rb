@@ -1,6 +1,7 @@
 require "active_support/lazy_load_hooks"
 
 require "active_record_sharding/version"
+require "active_record_sharding/error"
 
 module ActiveRecordSharding
   # Your code goes here...

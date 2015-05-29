@@ -31,10 +31,22 @@ module ActiveRecordSharding
 
       def all_shard
         if @shard_name
-          (1..Config.shards[@shard_name].count).map do |id|
-            self.sequence_id = id
-            all.to_a
-          end.flatten.sort
+
+          column_name = "#{@shard_name.to_s}_id"
+
+          if all.where_values_hash.has_key? column_name
+            if all.where_values_hash[column_name].is_a?(Fixnum)
+              self.sequence_id = all.where_values_hash[column_name]
+              all
+            else
+              # multi value
+            end
+          else
+            (1..Config.shards[@shard_name].count).map do |id|
+              self.sequence_id = id
+              all.to_a
+            end.flatten.sort
+          end
         else
           all
         end
