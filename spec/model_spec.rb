@@ -9,6 +9,12 @@ end
 
 class User < ActiveRecord::Base
   use_shard :user
+  has_many :articles
+end
+
+class Article < ActiveRecord::Base
+  use_shard :user
+  belongs_to :user
 end
 
 base = { adapter: 'sqlite3' }
@@ -69,6 +75,10 @@ RSpec.configure do |config|
     ActiveRecord::Base.establish_connection(:user_shard_2).connection.execute('CREATE TABLE users (id integer primary key autoincrement, name string)')
     ActiveRecord::Base.establish_connection(:user_shard_3).connection.execute('CREATE TABLE users (id integer primary key autoincrement, name string)')
 
+    ActiveRecord::Base.establish_connection(:user_shard_1).connection.execute('CREATE TABLE articles (id integer primary key autoincrement, user_id integer, title string, body string)')
+    ActiveRecord::Base.establish_connection(:user_shard_2).connection.execute('CREATE TABLE articles (id integer primary key autoincrement, user_id integer, title string, body string)')
+    ActiveRecord::Base.establish_connection(:user_shard_3).connection.execute('CREATE TABLE articles (id integer primary key autoincrement, user_id integer, title string, body string)')
+
     ActiveRecord::Base.establish_connection(:default)
     Book.connection.execute('CREATE TABLE books (id integer primary key autoincrement)')
     # User.connection.execute('CREATE TABLE users (id integer primary key autoincrement)')
@@ -88,9 +98,27 @@ RSpec.describe ActiveRecordSharding::Model do
 
   context "User sharding" do
     it "shard_1, shard_2, shard_3" do
-      expect(User.create(name: "alice").class).to connect_to('user_shard_2.sqlite3')
-      expect(User.create(name: "bob").class).to connect_to('user_shard_3.sqlite3')
-      expect(User.create(name: "carol").class).to connect_to('user_shard_1.sqlite3')
+      alice = User.create(name: "alice")
+      expect(alice.class).to connect_to('user_shard_2.sqlite3')
+
+      alice_profile = Article.create(title: "Alice profile", body: "Alice profile text")
+      alice.articles << alice_profile
+      expect(alice.articles.count).to eq 1
+
+      bob = User.create(name: "bob")
+      expect(bob.class).to connect_to('user_shard_3.sqlite3')
+      bob_profile = Article.create(title: "Bob profile", body: "Bob profile text")
+      bob.articles << bob_profile
+      expect(bob.articles.count).to eq 1
+      expect(Article.all_shard.count).to eq 2
+
+      carol = User.create(name: "carol")
+      expect(carol.class).to connect_to('user_shard_1.sqlite3')
+      carol_profile = Article.create(title: "Carol profile", body: "Carol profile text")
+      carol.articles << carol_profile
+      expect(carol.articles.count).to eq 1
+      expect(Article.all_shard.count).to eq 3
+
       expect(User.create(name: "dave").class).to connect_to('user_shard_2.sqlite3')
       expect(User.create(name: "ellen").class).to connect_to('user_shard_3.sqlite3')
     end

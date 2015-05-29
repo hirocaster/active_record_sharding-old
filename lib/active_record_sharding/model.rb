@@ -18,9 +18,12 @@ module ActiveRecordSharding
         private
 
         def set_sequence_id_for_primary_key
-          unless self.id
-            self.id = self.class.next_sequence_id
-            self.class.sequence_id = self.id
+          if self.class.shard_name &&
+             self.class.shard_name.to_s.camelize.singularize == self.class.name
+            if new_record?
+              self.id = self.class.next_sequence_id
+              self.class.sequence_id = self.id
+            end
           end
         end
       end
@@ -55,6 +58,10 @@ module ActiveRecordSharding
 
       def use_shard(name)
         @shard_name = name
+      end
+
+      def shard_name
+        @shard_name
       end
 
       def sequence_id
