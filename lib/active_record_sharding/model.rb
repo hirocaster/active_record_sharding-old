@@ -18,13 +18,15 @@ module ActiveRecordSharding
         private
 
         def set_sequence_id_for_primary_key
-          self.id = self.class.next_sequence_id
+          unless self.id
+            self.id = self.class.next_sequence_id
+            self.class.sequence_id = self.id
+          end
         end
       end
     end
 
     module ClassMethods
-
       def next_sequence_id
         SequencerRepository.checkout(@shard_name).next_id if @shard_name
       end
@@ -35,7 +37,7 @@ module ActiveRecordSharding
 
       def sharding_proxy
         if @shard_name
-          ProxyRepository.checkout(@shard_name, current_sequence_id)
+          ProxyRepository.checkout(@shard_name, sequence_id)
         elsif self == ActiveRecord::Base
           nil
         else
@@ -55,6 +57,13 @@ module ActiveRecordSharding
         @shard_name = name
       end
 
+      def sequence_id
+        @sequence_id || nil
+      end
+
+      def sequence_id=(new_record_id)
+        @sequence_id = new_record_id
+      end
     end
   end
 end

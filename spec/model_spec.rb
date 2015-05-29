@@ -95,15 +95,29 @@ RSpec.describe ActiveRecordSharding::Model do
       expect(User.create.class).to connect_to('user_shard_3.sqlite3')
     end
 
-    # it "" do
-    #   expect(User.find(1).class).to eq User
-    #   expect(User.find(2).class).to eq User
-    #   expect(User.find(3).class).to eq User
-    # end
+    context "Created users" do
+      it "#find(Fixnum)" do
+        expect(User.find(1).class).to eq User
+        expect(User.find(1).id).to eq 1
+        expect(User.find(2).class).to eq User
+        expect(User.find(2).id).to eq 2
+        expect(User.find(3).class).to eq User
+        expect(User.find(3).id).to eq 3
+      end
 
-    # it "" do
-    #   expect(User.find([1, 2, 3]).class).to eq Array
-    # end
+      it "#find_by(Fixnum)" do
+        expect(User.find_by(1).class).to eq User
+        expect(User.find_by(1).id).to eq 1
+        expect(User.find_by(2).class).to eq User
+        expect(User.find_by(2).id).to eq 2
+        expect(User.find_by(3).class).to eq User
+        expect(User.find_by(3).id).to eq 3
+      end
 
+      it "#find(Array)" do
+        pending "will support"
+        expect(User.find([1, 2, 3]).class).to eq Array
+      end
+    end
   end
 end
