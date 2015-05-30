@@ -8,3 +8,5 @@
 - [x] User.all -> User.all_shard
 - [x] User.where
 - [ ] リレーション関係
+- [ ] yamlにconfigを書いてロードする機能
+- [ ] Rails migration対応

@@ -17,6 +17,12 @@ class Article < ActiveRecord::Base
   belongs_to :user
 end
 
+class Comment < ActiveRecord::Base
+  use_shard :user
+  belongs_to :article
+  belongs_to :user
+end
+
 base = { adapter: 'sqlite3' }
 ActiveRecord::Base.configurations = {
   # 'main_readonly' => base.merge(database: 'main_readonly.sqlite3'),
@@ -79,6 +85,11 @@ RSpec.configure do |config|
     ActiveRecord::Base.establish_connection(:user_shard_2).connection.execute('CREATE TABLE articles (id integer primary key autoincrement, user_id integer, title string, body string)')
     ActiveRecord::Base.establish_connection(:user_shard_3).connection.execute('CREATE TABLE articles (id integer primary key autoincrement, user_id integer, title string, body string)')
 
+    comments_table_query = "CREATE TABLE comments (id integer primary key autoincrement, user_id integer, article_id integer, comment string)"
+    ActiveRecord::Base.establish_connection(:user_shard_1).connection.execute comments_table_query
+    ActiveRecord::Base.establish_connection(:user_shard_2).connection.execute comments_table_query
+    ActiveRecord::Base.establish_connection(:user_shard_3).connection.execute comments_table_query
+
     ActiveRecord::Base.establish_connection(:default)
     Book.connection.execute('CREATE TABLE books (id integer primary key autoincrement)')
     # User.connection.execute('CREATE TABLE users (id integer primary key autoincrement)')
@@ -110,6 +121,7 @@ RSpec.describe ActiveRecordSharding::Model do
       expect(bob_profile.class).to connect_to('user_shard_3.sqlite3')
       bob = User.create(name: "bob")
       expect(bob.class).to connect_to('user_shard_3.sqlite3')
+      expect(User.find(1).class).to connect_to('user_shard_2.sqlite3')
       bob.articles << bob_profile
       expect(bob.articles.count).to eq 1
       expect(Article.all_shard.count).to eq 2
@@ -131,11 +143,32 @@ RSpec.describe ActiveRecordSharding::Model do
       end.to raise_error(ActiveRecordSharding::NotFoundShardKeyError, "Please, set user_id.")
     end
 
-    context "Created users" do
+    context "Created users and articles" do
 
       it "one query" do
         # FIXME: write test
         Article.where(user_id: 1).all_shard
+      end
+
+      context "Use relation on  user object" do
+        it "returns alice's article" do
+          article = User.where(name: "alice").all_shard.first.articles.first
+          expect(article.class).to eq Article
+        end
+        it "returns bob's article" do
+          article = User.where(name: "bob").all_shard.first.articles.first
+          expect(article.class).to eq Article
+        end
+        it "returns carol's article" do
+          article = User.where(name: "carol").all_shard.first.articles.first
+          expect(article.class).to eq Article
+        end
+      end
+
+      it "bob write comment for alice's article" do
+        # bob = User.where(name: "bob").all_shard.first
+        # comment = Comment.create(comment: "Hello, alice.", article_id: article, user: bob)
+        # expect(comment.class).to  connect_to('user_shard_2.sqlite3')
       end
 
       it "#find(Fixnum)" do
