@@ -19,18 +19,28 @@ module ActiveRecordSharding
 
         def set_sequence_id_for_primary_key
           if self.class.shard_name && new_record?
-            if self.class.shard_name.to_s.camelize.singularize == self.class.name
+            if is_shard_key_model?
               self.id = self.class.next_sequence_id
               self.class.sequence_id = self.id
             else
-              shard_sequence_id = self.send("#{self.class.shard_name.to_s}_id")
-              unless shard_sequence_id
-                raise NotFoundShardKeyError, "Please, set #{self.class.shard_name.to_s}_id."
+              if self.class.shard_belongs
+                shard_sequence_id = self.send("#{self.class.shard_belongs.to_s}_id")
+                unless shard_sequence_id
+                  raise NotFoundShardKeyError, "Config miss, 'shard_key_object'."
+                end
+              else
+                shard_sequence_id = self.send("#{self.class.shard_name.to_s}_id")
+                unless shard_sequence_id
+                  raise NotFoundShardKeyError, "Please, set #{self.class.shard_name.to_s}_id."
+                end
               end
               self.class.sequence_id = shard_sequence_id
-              # self.class.sequence_id = self.class.shard_name.to_s.classify.constantize.sequence_id
             end
           end
+        end
+
+        def is_shard_key_model?
+          self.class.shard_name.to_s.camelize.singularize == self.class.name
         end
       end
     end
@@ -68,6 +78,14 @@ module ActiveRecordSharding
 
       def shard_name
         @shard_name
+      end
+
+      def shard_key_object(name)
+        @shard_key_object = name
+      end
+
+      def shard_belongs
+        @shard_key_object
       end
 
       def sequence_id

@@ -10,3 +10,4 @@
 - [ ] リレーション関係
 - [ ] yamlにconfigを書いてロードする機能
 - [ ] Rails migration対応
+- [ ] all_shardと書かなくても動くようにする

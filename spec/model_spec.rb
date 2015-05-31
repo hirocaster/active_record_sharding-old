@@ -15,10 +15,12 @@ end
 class Article < ActiveRecord::Base
   use_shard :user
   belongs_to :user
+  has_many :comments
 end
 
 class Comment < ActiveRecord::Base
   use_shard :user
+  shard_key_object :article
   belongs_to :article
   belongs_to :user
 end
@@ -166,9 +168,11 @@ RSpec.describe ActiveRecordSharding::Model do
       end
 
       it "bob write comment for alice's article" do
-        # bob = User.where(name: "bob").all_shard.first
-        # comment = Comment.create(comment: "Hello, alice.", article_id: article, user: bob)
-        # expect(comment.class).to  connect_to('user_shard_2.sqlite3')
+        bob = User.where(name: "bob").all_shard.first
+        article = User.where(name: "alice").all_shard.first.articles.first
+        comment = Comment.create(comment: "Hello, alice.", article: article, user: bob)
+        expect(comment.class).to  connect_to('user_shard_2.sqlite3')
+        expect(Comment.all_shard.first.user.class).to eq User
       end
 
       it "#find(Fixnum)" do
