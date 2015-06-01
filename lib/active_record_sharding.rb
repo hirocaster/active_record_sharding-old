@@ -25,4 +25,8 @@ ActiveSupport.on_load(:active_record) do
 
   require "active_record_sharding/association"
   ActiveRecord::Associations::Builder::Association.send(:include, ActiveRecordSharding::Association)
+
+  require "active_record_sharding/migration"
+  ActiveRecord::Migration.send(:include, ActiveRecordSharding::Migration)
+  ActiveRecord::Migrator.send(:include, ActiveRecordSharding::Migrator)
 end

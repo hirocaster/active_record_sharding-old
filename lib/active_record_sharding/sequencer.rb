@@ -46,5 +46,9 @@ module ActiveRecordSharding
 
     memoize :current_id
 
+    def connection
+      ActiveRecord::Base.establish_connection("#{@shard_name}_#{@model}_sequence".to_sym).connection
+    end
+
   end
 end
