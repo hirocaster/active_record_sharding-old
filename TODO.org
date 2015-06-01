@@ -11,3 +11,7 @@
 - [ ] yamlにconfigを書いてロードする機能
 - [ ] Rails migration対応
 - [ ] all_shardと書かなくても動くようにする
+- [ ] MySQLに最適化
+- [x] モデルごとの採番
+- [ ] 採番ベンチマーク
+- [ ] shard, sequence DBへの接続情報が設定されているかをチェックする機構

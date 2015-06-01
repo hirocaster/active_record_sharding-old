@@ -39,7 +39,9 @@ ActiveRecord::Base.configurations = {
   'user_shard_1' => base.merge(database: 'user_shard_1.sqlite3'),
   'user_shard_2' => base.merge(database: 'user_shard_2.sqlite3'),
   'user_shard_3' => base.merge(database: 'user_shard_3.sqlite3'),
-  'user_sequence' => base.merge(database: 'user_sequence.sqlite3')
+  'user_user_sequence' => base.merge(database: 'user_user_sequence.sqlite3'),
+  'user_article_sequence' => base.merge(database: 'user_article_sequence.sqlite3'),
+  'user_comment_sequence' => base.merge(database: 'user_comment_sequence.sqlite3')
 }
 ActiveRecord::Base.establish_connection(:default)
 
@@ -76,8 +78,10 @@ RSpec.configure do |config|
   end
 
   config.before(:suite) do
-    ActiveRecord::Base.establish_connection(:user_sequence).connection.execute('CREATE TABLE user_sequence (id integer primary key autoincrement)')
-    ActiveRecord::Base.establish_connection(:user_sequence).connection.execute('INSERT INTO user_sequence (id) VALUES (0)')
+    [:user_user_sequence, :user_article_sequence, :user_comment_sequence].each do |sequence|
+      ActiveRecord::Base.establish_connection(sequence).connection.execute("CREATE TABLE #{sequence.to_s} (id integer primary key autoincrement)")
+      ActiveRecord::Base.establish_connection(sequence).connection.execute("INSERT INTO #{sequence.to_s} (id) VALUES (0)")
+    end
 
     ActiveRecord::Base.establish_connection(:user_shard_1).connection.execute('CREATE TABLE users (id integer primary key autoincrement, name string)')
     ActiveRecord::Base.establish_connection(:user_shard_2).connection.execute('CREATE TABLE users (id integer primary key autoincrement, name string)')
@@ -120,6 +124,10 @@ RSpec.describe ActiveRecordSharding::Model do
       expect(alice.articles.count).to eq 1
 
       bob_profile = Article.create(title: "Bob profile", body: "Bob profile text", user_id: 2)
+
+      expect(alice_profile.id).not_to eq bob_profile.id
+      expect(alice_profile.id).to be < bob_profile.id
+
       expect(bob_profile.class).to connect_to('user_shard_3.sqlite3')
       bob = User.create(name: "bob")
       expect(bob.class).to connect_to('user_shard_3.sqlite3')

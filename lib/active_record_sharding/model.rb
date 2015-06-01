@@ -19,39 +19,41 @@ module ActiveRecordSharding
 
         def set_sequence_id_for_primary_key
           if self.class.shard_name && new_record?
-            if is_shard_key_model?
-              self.id = self.class.next_sequence_id
-              self.class.sequence_id = self.id
+            self.id = self.class.next_sequence_id
+            self.class.sequence_id = self.id
+
+            shard_sequence_id = nil
+            if self.class.shard_belongs
+              shard_sequence_id = self.send(self.class.shard_belongs.to_sym).send("#{self.class.shard_name.to_s}_id")
+              unless shard_sequence_id
+                raise NotFoundShardKeyError, "Config miss, 'shard_key_object'."
+              end
             else
-              if self.class.shard_belongs
-                shard_sequence_id = self.send("#{self.class.shard_belongs.to_s}_id")
-                unless shard_sequence_id
-                  raise NotFoundShardKeyError, "Config miss, 'shard_key_object'."
-                end
-              else
+              if self.respond_to? "#{self.class.shard_name.to_s}_id"
                 shard_sequence_id = self.send("#{self.class.shard_name.to_s}_id")
                 unless shard_sequence_id
                   raise NotFoundShardKeyError, "Please, set #{self.class.shard_name.to_s}_id."
                 end
               end
-              self.class.sequence_id = shard_sequence_id
             end
-          end
-        end
 
-        def is_shard_key_model?
-          self.class.shard_name.to_s.camelize.singularize == self.class.name
+            self.class.sequence_id = shard_sequence_id if shard_sequence_id
+          end
         end
       end
     end
 
     module ClassMethods
       def next_sequence_id
-        SequencerRepository.checkout(@shard_name).next_id if @shard_name
+        SequencerRepository.checkout(@shard_name, model_name_symbol).next_id if @shard_name
       end
 
       def current_sequence_id
-        SequencerRepository.checkout(@shard_name).current_id if @shard_name
+        SequencerRepository.checkout(@shard_name, model_name_symbol).current_id if @shard_name
+      end
+
+      def model_name_symbol
+        self.name.downcase.to_sym
       end
 
       def sharding_proxy
