@@ -15,3 +15,13 @@
 - [x] モデルごとの採番
 - [ ] 採番ベンチマーク
 - [ ] shard, sequence DBへの接続情報が設定されているかをチェックする機構
+- [ ] コネクションネームルールをRails.envに対応
+
+
+- [ ] shard, sequenceに下記を手動で追加する必要ある
+CREATE TABLE `schema_migrations` (
+  `version` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  UNIQUE KEY `unique_schema_migrations` (`version`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+  - [ ] migration 全部 https://github.com/winebarrel/ridgepole にする？
