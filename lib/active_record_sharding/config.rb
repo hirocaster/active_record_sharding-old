@@ -25,5 +25,17 @@ module ActiveRecordSharding
     def shards
       @shards ||= { :user => [:user_shard_1, :user_shard_2, :user_shard_3] }
     end
+
+    def self.environment
+      if defined?(Rails) && Rails.env
+        Rails.env
+      else
+        if ENV['RACK_ENV']
+          ENV['RACK_ENV']
+        else
+          :development
+        end
+      end
+    end
   end
 end

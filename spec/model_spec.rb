@@ -39,9 +39,9 @@ ActiveRecord::Base.configurations = {
   'user_shard_1' => base.merge(database: 'user_shard_1.sqlite3'),
   'user_shard_2' => base.merge(database: 'user_shard_2.sqlite3'),
   'user_shard_3' => base.merge(database: 'user_shard_3.sqlite3'),
-  'user_user_sequence' => base.merge(database: 'user_user_sequence.sqlite3'),
-  'user_article_sequence' => base.merge(database: 'user_article_sequence.sqlite3'),
-  'user_comment_sequence' => base.merge(database: 'user_comment_sequence.sqlite3')
+  'user_user_sequence_test' => base.merge(database: 'user_user_sequence.sqlite3'),
+  'user_article_sequence_test' => base.merge(database: 'user_article_sequence.sqlite3'),
+  'user_comment_sequence_test' => base.merge(database: 'user_comment_sequence.sqlite3')
 }
 ActiveRecord::Base.establish_connection(:default)
 
@@ -78,9 +78,11 @@ RSpec.configure do |config|
   end
 
   config.before(:suite) do
-    [:user_user_sequence, :user_article_sequence, :user_comment_sequence].each do |sequence|
-      ActiveRecord::Base.establish_connection(sequence).connection.execute("CREATE TABLE #{sequence.to_s} (id integer primary key autoincrement)")
-      ActiveRecord::Base.establish_connection(sequence).connection.execute("INSERT INTO #{sequence.to_s} (id) VALUES (0)")
+    [:user_user_sequence_test, :user_article_sequence_test, :user_comment_sequence_test].each do |db_conn_name|
+      [:user_user_sequence, :user_article_sequence, :user_comment_sequence].each do |sequence|
+        ActiveRecord::Base.establish_connection(db_conn_name).connection.execute("CREATE TABLE #{sequence.to_s} (id integer primary key autoincrement)")
+        ActiveRecord::Base.establish_connection(db_conn_name).connection.execute("INSERT INTO #{sequence.to_s} (id) VALUES (0)")
+      end
     end
 
     ActiveRecord::Base.establish_connection(:user_shard_1).connection.execute('CREATE TABLE users (id integer primary key autoincrement, name string)')

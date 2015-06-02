@@ -16,6 +16,8 @@
 - [ ] 採番ベンチマーク
 - [ ] shard, sequence DBへの接続情報が設定されているかをチェックする機構
 - [ ] コネクションネームルールをRails.envに対応
+  - [x] sequencer
+  - [ ] sahrd
 
 
 - [ ] shard, sequenceに下記を手動で追加する必要ある
