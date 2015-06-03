@@ -111,6 +111,12 @@ RSpec.configure do |config|
 end
 
 RSpec.describe ActiveRecordSharding::Model do
+
+  before(:each) do
+    allow(ActiveRecordSharding::Config).to receive(:file) { "./spec/shards.yml" }
+    ActiveRecordSharding::Config.load!
+  end
+
   it "default connection" do
     expect(Book).to connect_to('default.sqlite3')
   end

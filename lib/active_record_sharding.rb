@@ -1,14 +1,13 @@
 require "active_support/lazy_load_hooks"
+require "active_support/concern"
 
 require "active_record_sharding/version"
 require "active_record_sharding/error"
 
 module ActiveRecordSharding
-  # Your code goes here...
 end
 
 ActiveSupport.on_load(:active_record) do
-  # require 'switch_point/query_cache'
   require "active_record_sharding/model"
   ActiveRecord::Base.send(:include, ActiveRecordSharding::Model)
 
@@ -25,4 +24,9 @@ ActiveSupport.on_load(:active_record) do
 
   require "active_record_sharding/association"
   ActiveRecord::Associations::Builder::Association.send(:include, ActiveRecordSharding::Association)
+
+end
+
+ActiveSupport.on_load(:rails) do
+  ActiveRecordSharding::Config.load!
 end

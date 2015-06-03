@@ -1,0 +1,11 @@
+development:
+  user:
+    - user_shard_1_development
+    - user_shard_2_development
+    - user_shard_3_development
+
+test:
+  user:
+    - user_shard_1_test
+    - user_shard_2_test
+    - user_shard_3_test

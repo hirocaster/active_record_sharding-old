@@ -23,11 +23,7 @@ module ActiveRecordSharding
     end
 
     def shards
-      if Config.environment == :test
-        @shards ||= { :user => [:user_shard_1_test, :user_shard_2_test, :user_shard_3_test] }
-      elsif Config.environment == :development
-        @shards ||= { :user => [:user_shard_1_development, :user_shard_2_development, :user_shard_3_development] }
-      end
+      @config ||= self.load!(self.class.file, self.class.environment)
     end
 
     def self.environment
@@ -40,6 +36,26 @@ module ActiveRecordSharding
           :development
         end
       end
+    end
+
+    DEFAULT_PATH = File.dirname(File.dirname(__FILE__))
+
+    def self.file
+      @@config_file ||=
+        File.join(defined?(::Rails) ?
+                    ::Rails.root.to_s : DEFAULT_PATH, 'config/shards.yml')
+    end
+
+    def self.file=(filename)
+      @@config_file = filename
+    end
+
+    def self.load!(config_file = self.file, env = self.environment)
+      instance.load!(config_file, env)
+    end
+
+    def load!(config_file, env)
+      @config = YAML.load(ERB.new(IO.read(config_file)).result).with_indifferent_access[env]
     end
   end
 end
