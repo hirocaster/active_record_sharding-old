@@ -7,17 +7,19 @@
 - [ ] User.find([8, 9, 10])
 - [x] User.all -> User.all_shard
 - [x] User.where
+
 - [ ] リレーション関係
+  ほぼおわり？
+
 - [ ] yamlにconfigを書いてロードする機能
-- [ ] Rails migration対応
 - [ ] all_shardと書かなくても動くようにする
 - [ ] MySQLに最適化
 - [x] モデルごとの採番
 - [ ] 採番ベンチマーク
 - [ ] shard, sequence DBへの接続情報が設定されているかをチェックする機構
-- [ ] コネクションネームルールをRails.envに対応
+- [x] コネクションネームルールをRails.envに対応
   - [x] sequencer
-  - [ ] sahrd
+  - [x] sahrd
 
 
 - [ ] shard, sequenceに下記を手動で追加する必要ある
@@ -27,3 +29,9 @@ CREATE TABLE `schema_migrations` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
   - [ ] migration 全部 https://github.com/winebarrel/ridgepole にする？
+
+
+
+** 切り捨てる方針
+
+- [ ] Rails migration対応

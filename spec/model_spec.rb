@@ -36,9 +36,9 @@ ActiveRecord::Base.configurations = {
   # 'comment_readonly' => base.merge(database: 'comment_readonly.sqlite3'),
   # 'comment_writable' => base.merge(database: 'comment_writable.sqlite3'),
   'default' => base.merge(database: 'default.sqlite3'),
-  'user_shard_1' => base.merge(database: 'user_shard_1.sqlite3'),
-  'user_shard_2' => base.merge(database: 'user_shard_2.sqlite3'),
-  'user_shard_3' => base.merge(database: 'user_shard_3.sqlite3'),
+  'user_shard_1_test' => base.merge(database: 'user_shard_1.sqlite3'),
+  'user_shard_2_test' => base.merge(database: 'user_shard_2.sqlite3'),
+  'user_shard_3_test' => base.merge(database: 'user_shard_3.sqlite3'),
   'user_user_sequence_test' => base.merge(database: 'user_user_sequence.sqlite3'),
   'user_article_sequence_test' => base.merge(database: 'user_article_sequence.sqlite3'),
   'user_comment_sequence_test' => base.merge(database: 'user_comment_sequence.sqlite3')
@@ -85,18 +85,18 @@ RSpec.configure do |config|
       end
     end
 
-    ActiveRecord::Base.establish_connection(:user_shard_1).connection.execute('CREATE TABLE users (id integer primary key autoincrement, name string)')
-    ActiveRecord::Base.establish_connection(:user_shard_2).connection.execute('CREATE TABLE users (id integer primary key autoincrement, name string)')
-    ActiveRecord::Base.establish_connection(:user_shard_3).connection.execute('CREATE TABLE users (id integer primary key autoincrement, name string)')
+    ActiveRecord::Base.establish_connection(:user_shard_1_test).connection.execute('CREATE TABLE users (id integer primary key autoincrement, name string)')
+    ActiveRecord::Base.establish_connection(:user_shard_2_test).connection.execute('CREATE TABLE users (id integer primary key autoincrement, name string)')
+    ActiveRecord::Base.establish_connection(:user_shard_3_test).connection.execute('CREATE TABLE users (id integer primary key autoincrement, name string)')
 
-    ActiveRecord::Base.establish_connection(:user_shard_1).connection.execute('CREATE TABLE articles (id integer primary key autoincrement, user_id integer, title string, body string)')
-    ActiveRecord::Base.establish_connection(:user_shard_2).connection.execute('CREATE TABLE articles (id integer primary key autoincrement, user_id integer, title string, body string)')
-    ActiveRecord::Base.establish_connection(:user_shard_3).connection.execute('CREATE TABLE articles (id integer primary key autoincrement, user_id integer, title string, body string)')
+    ActiveRecord::Base.establish_connection(:user_shard_1_test).connection.execute('CREATE TABLE articles (id integer primary key autoincrement, user_id integer, title string, body string)')
+    ActiveRecord::Base.establish_connection(:user_shard_2_test).connection.execute('CREATE TABLE articles (id integer primary key autoincrement, user_id integer, title string, body string)')
+    ActiveRecord::Base.establish_connection(:user_shard_3_test).connection.execute('CREATE TABLE articles (id integer primary key autoincrement, user_id integer, title string, body string)')
 
     comments_table_query = "CREATE TABLE comments (id integer primary key autoincrement, user_id integer, article_id integer, comment string)"
-    ActiveRecord::Base.establish_connection(:user_shard_1).connection.execute comments_table_query
-    ActiveRecord::Base.establish_connection(:user_shard_2).connection.execute comments_table_query
-    ActiveRecord::Base.establish_connection(:user_shard_3).connection.execute comments_table_query
+    ActiveRecord::Base.establish_connection(:user_shard_1_test).connection.execute comments_table_query
+    ActiveRecord::Base.establish_connection(:user_shard_2_test).connection.execute comments_table_query
+    ActiveRecord::Base.establish_connection(:user_shard_3_test).connection.execute comments_table_query
 
     ActiveRecord::Base.establish_connection(:default)
     Book.connection.execute('CREATE TABLE books (id integer primary key autoincrement)')

@@ -23,7 +23,11 @@ module ActiveRecordSharding
     end
 
     def shards
-      @shards ||= { :user => [:user_shard_1, :user_shard_2, :user_shard_3] }
+      if Config.environment == :test
+        @shards ||= { :user => [:user_shard_1_test, :user_shard_2_test, :user_shard_3_test] }
+      elsif Config.environment == :development
+        @shards ||= { :user => [:user_shard_1_development, :user_shard_2_development, :user_shard_3_development] }
+      end
     end
 
     def self.environment
@@ -31,7 +35,7 @@ module ActiveRecordSharding
         Rails.env
       else
         if ENV['RACK_ENV']
-          ENV['RACK_ENV']
+          ENV['RACK_ENV'].to_sym
         else
           :development
         end
