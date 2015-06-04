@@ -10,7 +10,7 @@ module ActiveRecordSharding
       if model_name
         model = Class.new(ActiveRecord::Base)
         Proxy.const_set(key(model_name, id), model)
-        model.establish_connection shard_connection_name(id)
+        model.establish_connection shard_connection_name(id).to_sym
         model
       else
         Class.new(ActiveRecord::Base)
