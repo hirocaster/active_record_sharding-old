@@ -21,9 +21,21 @@ development:
   <<: *default
   database: active_record_sharding-example_app_development
 
-user_user_sequence:
+user_user_sequence_development:
   <<: *default
-  database: user_user_sequence
+  database: user_user_sequence_development
+
+user_shard_1_development:
+  <<: *default
+  database: user_shard_1_development
+
+user_shard_2_development:
+  <<: *default
+  database: user_shard_2_development
+
+user_shard_3_development:
+  <<: *default
+  database: user_shard_3_development
 
 # Warning: The database defined as "test" will be erased and
 # re-generated from your development database when you run "rake".
@@ -31,6 +43,22 @@ user_user_sequence:
 test:
   <<: *default
   database: active_record_sharding-example_app_test
+
+user_user_sequence_test:
+  <<: *default
+  database: user_user_sequence_test
+
+user_shard_1_test:
+  <<: *default
+  database: user_shard_1_test
+
+user_shard_2_test:
+  <<: *default
+  database: user_shard_2_test
+
+user_shard_3_test:
+  <<: *default
+  database: user_shard_3_test
 
 # As with config/secrets.yml, you never want to store sensitive information,
 # like your database password, in your source code. If your source code is

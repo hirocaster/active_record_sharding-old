@@ -1,0 +1,21 @@
+default: &default
+  adapter: mysql2
+  encoding: utf8
+  username: root
+  host: localhost
+
+test:
+  <<: *default
+  database: <%= config[:shard_name] %>_<%= config[:sequencer_name] %>_sequence_test
+
+development:
+  <<: *default
+  database: <%= config[:shard_name] %>_<%= config[:sequencer_name] %>_sequence_development
+
+staging:
+  <<: *default
+  database: <%= config[:shard_name] %>_<%= config[:sequencer_name] %>_sequence_staging
+
+production:
+  <<: *default
+  database: <%= config[:shard_name] %>_<%= config[:sequencer_name] %>_sequence_production

@@ -47,6 +47,7 @@ gem 'kakurenbo'
 gem 'nokogiri'
 
 gem "active_record_sharding", path: "../"
+gem "ridgepole"
 
 group :deployment do
   gem 'net-ssh', '2.7.0'

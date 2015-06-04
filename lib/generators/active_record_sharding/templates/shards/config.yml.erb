@@ -1,0 +1,21 @@
+default: &default
+  adapter: mysql2
+  encoding: utf8
+  username: root
+  host: localhost
+
+test:
+  <<: *default
+  database: <%= config[:shard_name] %>_shard_<%= config[:shard_node_number] %>_test
+
+development:
+  <<: *default
+  database: <%= config[:shard_name] %>_shard_<%= config[:shard_node_number] %>_development
+
+staging:
+  <<: *default
+  database: <%= config[:shard_name] %>_shard_<%= config[:shard_node_number] %>_staging
+
+production:
+  <<: *default
+  database: <%= config[:shard_name] %>_shard_<%= config[:shard_node_number] %>_production

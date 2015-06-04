@@ -1,0 +1,21 @@
+default: &default
+  adapter: mysql2
+  encoding: utf8
+  username: root
+  host: localhost
+
+test:
+  <<: *default
+  database: user_shard_2_test
+
+development:
+  <<: *default
+  database: user_shard_2_development
+
+staging:
+  <<: *default
+  database: user_shard_2_staging
+
+production:
+  <<: *default
+  database: user_shard_2_production
