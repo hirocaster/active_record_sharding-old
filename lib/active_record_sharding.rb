@@ -5,11 +5,6 @@ require "active_record_sharding/version"
 require "active_record_sharding/error"
 
 module ActiveRecordSharding
-  class Railtie < ::Rails::Railtie
-    rake_tasks do
-      load "active_record_sharding/tasks/db.rake"
-    end
-  end
 end
 
 ActiveSupport.on_load(:active_record) do
@@ -30,8 +25,17 @@ ActiveSupport.on_load(:active_record) do
   require "active_record_sharding/association"
   ActiveRecord::Associations::Builder::Association.send(:include, ActiveRecordSharding::Association)
 
+
+  require "active_record_sharding/abstract_adapter"
+  ActiveRecord::ConnectionAdapters::AbstractAdapter.send(:include, ActiveRecordSharding::AbstractAdapter)
 end
 
 ActiveSupport.on_load(:rails) do
   ActiveRecordSharding::Config.load!
+
+  class Railtie < ::Rails::Railtie
+    rake_tasks do
+      load "active_record_sharding/tasks/db.rake"
+    end
+  end
 end
