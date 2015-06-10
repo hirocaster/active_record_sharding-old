@@ -5,6 +5,12 @@ require "active_record_sharding/version"
 require "active_record_sharding/error"
 
 module ActiveRecordSharding
+  # FIXME: requite "rails"
+  class Railtie < ::Rails::Railtie
+    rake_tasks do
+      load "active_record_sharding/tasks/db.rake"
+    end
+  end
 end
 
 ActiveSupport.on_load(:active_record) do

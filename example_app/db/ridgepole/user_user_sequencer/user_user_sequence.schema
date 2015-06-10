@@ -1,3 +1,0 @@
-create_table "user_user_sequencer", id: false, force: :cascade do |t|
-  t.integer "id", limit: 8, default: 0, null: false
-end
