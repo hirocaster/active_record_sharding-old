@@ -12,11 +12,44 @@ module ActiveRecordSharding
 
     module ClassMethods
       def find_with_shard(*ids)
-        if ids.size == 1 && ids.first.is_a?(Fixnum)
+        if ids.size == 1 && ids.first.is_a?(Fixnum) # find(1)
           if @shard_name
             self.sequence_id = ids.first
           end
+          return find_without_shard(*ids)
         end
+
+        if ids.size == 1 && ids.first.is_a?(Array) # find([1, 2, 3])
+          find_ids = ids.first
+          if find_ids.size == 1 # find([1])
+            if @shard_name
+              self.sequence_id = find_ids.first
+              return find_without_shard(find_ids)
+            end
+          elsif find_ids.size > 1 # find([1, 2, 3])
+            if @shard_name
+
+              find_ids.sort!
+
+              shard_count = ActiveRecordSharding::Config.shard_count(@shard_name)
+
+              find_record = []
+              find_ids.each do |find_id|
+                find_record[find_id.modulo(shard_count)] = [] unless find_record[find_id.modulo(shard_count)]
+                find_record[find_id.modulo(shard_count)] << find_id
+              end
+
+              result = []
+              find_record.each_with_index do |value, index|
+                next unless value
+                self.sequence_id = index
+                result << find_without_shard(value)
+              end
+              return result.flatten
+            end
+          end
+        end
+
         find_without_shard(*ids)
       end
 

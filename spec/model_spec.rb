@@ -176,6 +176,47 @@ RSpec.describe ActiveRecordSharding::Model do
         Article.where(user_id: 1).all_shard
       end
 
+      describe "#find(Array)" do
+        it "raise exception ActiveRecord::RecordNotFound" do
+          expect { User.find([99999]) }.to raise_error(ActiveRecord::RecordNotFound)
+          expect { User.find([99999, 999]) }.to raise_error(ActiveRecord::RecordNotFound)
+        end
+
+        it "returns User object in Array" do
+          result = User.find([1])
+          expect(result.class).to eq Array
+          expect(result.count).to eq 1
+          expect(result[0].class).to eq User
+          expect(result[0].id).to eq 1
+          expect(result[0].name).to eq "alice"
+        end
+
+        it "returns User objects in Array" do
+          result = User.find([1, 2])
+          expect(result.class).to eq Array
+          expect(result.count).to eq 2
+          expect(result[0].class).to eq User
+          expect(result[1].class).to eq User
+          expect(result[0].id).to eq 1
+          expect(result[1].id).to eq 2
+          expect(result[0].name).to eq "alice"
+          expect(result[1].name).to eq "bob"
+
+          result = User.find([1, 2, 3])
+          expect(result.count).to eq 3
+        end
+
+        it "returns sorted User objects in Array" do
+          result = User.find([2, 1])
+          expect(result[0].id).to eq 1
+          expect(result[1].id).to eq 2
+        end
+
+        it "raise exception ActiveRecord::RecordNotFound found 1,2 but not found 9" do
+          expect { User.find([1, 2, 9]) }.to raise_error(ActiveRecord::RecordNotFound)
+        end
+      end
+
       context "Use relation on  user object" do
         it "returns alice's article" do
           article = User.where(name: "alice").all_shard.first.articles.first
