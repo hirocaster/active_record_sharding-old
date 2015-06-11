@@ -1,3 +1,0 @@
-create_table "<%= config[:shard_name] %>_<%= config[:sequencer_name] %>_sequencer", id: false, force: :cascade do |t|
-  t.integer "id", limit: 8, default: 0, null: false
-end

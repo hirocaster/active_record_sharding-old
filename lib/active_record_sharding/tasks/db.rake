@@ -75,7 +75,7 @@ namespace :sharding do
       shard_name = args[:shard_name]
       shard_node_count = ActiveRecordSharding::Config.shard_count shard_name
       (1..shard_node_count).each do |shard_node_number|
-        sh "bundle exec ridgepole -c db/ridgepole/#{shard_name}_shard/#{shard_name}_shard_#{shard_node_number}.yml -f db/ridgepole/#{shard_name}_shard/Schemafile --apply -E #{Rails.env}"
+        sh "bundle exec ridgepole -c db/ridgepole/#{shard_name}_shard/shards/#{shard_name}_shard_#{shard_node_number}.yml -f db/ridgepole/#{shard_name}_shard/shards/Schemafile --apply -E #{Rails.env}"
       end
     end
 
@@ -89,7 +89,7 @@ namespace :sharding do
         shard_name = args[:shard_name]
         shard_node_count = ActiveRecordSharding::Config.shard_count shard_name
         (1..shard_node_count).each do |shard_node_number|
-          sh "bundle exec ridgepole -c db/ridgepole/#{shard_name}_shard/#{shard_name}_shard_#{shard_node_number}.yml -f db/ridgepole/#{shard_name}_shard/Schemafile --apply --dry-run -E #{Rails.env}"
+          sh "bundle exec ridgepole -c db/ridgepole/#{shard_name}_shard/shards/#{shard_name}_shard_#{shard_node_number}.yml -f db/ridgepole/#{shard_name}_shard/shards/Schemafile --apply --dry-run -E #{Rails.env}"
         end
       end
     end
