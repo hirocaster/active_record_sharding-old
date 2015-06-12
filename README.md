@@ -118,7 +118,7 @@ database migration dry run and apply
 
 need initial counter record for sequence database.
 
-    $ mysql -u root -h seq.db.host user_user_sequence_development -e "INSERT INTO user_user_sequencer (id) VALUES(0)"
+    $ mysql -u root -h seq.db.host user_user_sequence_development -e "INSERT INTO user_user_sequence (id) VALUES(0)"
 
     mysql> select * from user_user_sequencer;
     +----+
