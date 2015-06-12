@@ -32,5 +32,9 @@ module ActiveRecordShardingExampleApp
 
     # Do not swallow errors in after_commit/after_rollback callbacks.
     config.active_record.raise_in_transactional_callbacks = true
+
+    # activerecord-refresh_connection
+    config.middleware.swap ActiveRecord::ConnectionAdapters::ConnectionManagement,
+      "ActiveRecord::ConnectionAdapters::RefreshConnectionManagement"
   end
 end
