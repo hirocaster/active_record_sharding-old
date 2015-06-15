@@ -4,7 +4,7 @@
 
 - [x] User.find(8) 参考: https://github.com/hooopo/second_level_cache/blob/master/lib/second_level_cache/active_record/core.rb
 - [x] User.find_by(5)
-- [ ] User.find([8, 9, 10])
+- [x] User.find([8, 9, 10])
 - [x] User.all -> User.all_shard
 - [x] User.where
 
