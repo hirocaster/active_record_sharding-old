@@ -45,11 +45,11 @@ module ActiveRecordSharding
 
     module ClassMethods
       def next_sequence_id
-        SequencerRepository.checkout(@shard_name, model_name_symbol).next_id if @shard_name
+        SequencerRepository.checkout(shard_name, model_name_symbol).next_id if shard_name
       end
 
       def current_sequence_id
-        SequencerRepository.checkout(@shard_name, model_name_symbol).current_id if @shard_name
+        SequencerRepository.checkout(shard_name, model_name_symbol).current_id if shard_name
       end
 
       def model_name_symbol
@@ -57,8 +57,8 @@ module ActiveRecordSharding
       end
 
       def sharding_proxy
-        if @shard_name
-          ProxyRepository.checkout(@shard_name, sequence_id)
+        if shard_name
+          ProxyRepository.checkout(shard_name, sequence_id)
         elsif self == ActiveRecord::Base
           nil
         else
@@ -75,7 +75,8 @@ module ActiveRecordSharding
       end
 
       def use_shard(name)
-        @shard_name = name
+        class_attribute :shard_name
+        self.shard_name = name
       end
 
       def shard_name

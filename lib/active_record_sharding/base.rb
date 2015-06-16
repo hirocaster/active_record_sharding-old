@@ -13,7 +13,7 @@ module ActiveRecordSharding
     module ClassMethods
       def find_with_shard(*ids)
         if ids.size == 1 && ids.first.is_a?(Fixnum) # find(1)
-          if @shard_name
+          if shard_name
             self.sequence_id = ids.first
           end
           return find_without_shard(*ids)
@@ -22,16 +22,16 @@ module ActiveRecordSharding
         if ids.size == 1 && ids.first.is_a?(Array) # find([1, 2, 3])
           find_ids = ids.first
           if find_ids.size == 1 # find([1])
-            if @shard_name
+            if shard_name
               self.sequence_id = find_ids.first
               return find_without_shard(find_ids)
             end
           elsif find_ids.size > 1 # find([1, 2, 3])
-            if @shard_name
+            if shard_name
 
               find_ids.sort!
 
-              shard_count = ActiveRecordSharding::Config.shard_count(@shard_name)
+              shard_count = ActiveRecordSharding::Config.shard_count(shard_name)
 
               find_record = []
               find_ids.each do |find_id|
@@ -55,7 +55,7 @@ module ActiveRecordSharding
 
       def find_by_with_shard(*args)
         if args.size == 1 && args.first.is_a?(Fixnum)
-          if @shard_name
+          if shard_name
             self.sequence_id = args.first
           end
         end
@@ -63,9 +63,9 @@ module ActiveRecordSharding
       end
 
       def all_shard
-        if @shard_name
+        if shard_name
 
-          column_name = "#{@shard_name.to_s}_id"
+          column_name = "#{shard_name.to_s}_id"
 
           if all.where_values_hash.has_key? column_name
             if all.where_values_hash[column_name].is_a?(Fixnum)
@@ -75,7 +75,7 @@ module ActiveRecordSharding
               # multi value
             end
           else
-            (1..Config.shards[@shard_name].count).map do |id|
+            (1..Config.shards[shard_name].count).map do |id|
               self.sequence_id = id
               all.to_a
             end.flatten.sort

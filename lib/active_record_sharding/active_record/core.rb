@@ -13,8 +13,8 @@ module ActiveRecordSharding
       module ClassMethods
         def find_with_shard(*ids)
           if ids.size == 1 && ids.first.is_a?(Fixnum)
-            if @shard_name
-              ProxyRepository.checkout(@shard_name, ids.first)
+            if shard_name
+              ProxyRepository.checkout(shard_name, ids.first)
             end
           end
           find_without_shard(*ids)

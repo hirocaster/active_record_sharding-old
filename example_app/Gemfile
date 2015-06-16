@@ -36,16 +36,16 @@ group :development, :test do
 end
 
 
-gem 'rails_config'
-gem 'whenever'
-gem 'kaminari'
+# gem 'rails_config'
+# gem 'whenever'
+# gem 'kaminari'
 gem 'parallel'
-gem 'faraday'
-gem 'httpclient'
-gem 'dalli', require: 'active_support/cache/dalli_store'
-gem 'activeadmin', github: 'gregbell/active_admin'
-gem 'kakurenbo'
-gem 'nokogiri'
+# gem 'faraday'
+# gem 'httpclient'
+# gem 'dalli', require: 'active_support/cache/dalli_store'
+# gem 'activeadmin', github: 'gregbell/active_admin'
+# gem 'kakurenbo'
+# gem 'nokogiri'
 gem 'arproxy'
 gem 'activerecord-refresh_connection'
 gem 'parallel'
@@ -54,18 +54,18 @@ gem "active_record_sharding", path: "../"
 gem "ridgepole"
 
 group :deployment do
-  gem 'net-ssh', '2.7.0'
-  gem 'capistrano', '~> 3.2.0'
-  gem 'capistrano-rbenv', '~> 2.0'
-  gem 'capistrano-bundler', '~> 1.1.2'
-  gem 'capistrano-rails', '~> 1.1'
-  gem 'supply_drop', git: 'git@github.com:thoward/supply_drop.git', branch: 'cap_3'
-  gem 'puppet'
-  gem 'librarian-puppet'
+  # gem 'net-ssh', '2.7.0'
+  # gem 'capistrano', '~> 3.2.0'
+  # gem 'capistrano-rbenv', '~> 2.0'
+  # gem 'capistrano-bundler', '~> 1.1.2'
+  # gem 'capistrano-rails', '~> 1.1'
+  # gem 'supply_drop', git: 'git@github.com:thoward/supply_drop.git', branch: 'cap_3'
+  # gem 'puppet'
+  # gem 'librarian-puppet'
 end
 
 group :development do
-  gem 'seed_dump'
+  # gem 'seed_dump'
 end
 
 group :development, :test do
@@ -78,13 +78,13 @@ group :development, :test do
   # gem 'database_rewinder'
   gem 'factory_girl_rails'
   gem 'pry-byebug'
-  gem 'webmock'
-  gem 'vcr'
+  # gem 'webmock'
+  # gem 'vcr'
   gem 'bullet'
-  gem 'bundler-auto-update'
-  gem 'metric_fu', git: 'https://github.com/metricfu/metric_fu.git'
-  gem 'rubocop'
-  gem 'simplecov'
-  gem 'simplecov-rcov-text'
-  gem 'compass'
+  # gem 'bundler-auto-update'
+  # gem 'metric_fu', git: 'https://github.com/metricfu/metric_fu.git'
+  # gem 'rubocop'
+  # gem 'simplecov'
+  # gem 'simplecov-rcov-text'
+  # gem 'compass'
 end

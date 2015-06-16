@@ -35,6 +35,9 @@ ActiveSupport.on_load(:active_record) do
 
   require "active_record_sharding/abstract_adapter"
   ActiveRecord::ConnectionAdapters::AbstractAdapter.send(:include, ActiveRecordSharding::AbstractAdapter)
+
+  require "active_record_sharding/log_subscriber"
+  ActiveRecord::LogSubscriber.send(:include, ActiveRecordSharding::LogSubscriber)
 end
 
 ActiveSupport.on_load(:rails) do
