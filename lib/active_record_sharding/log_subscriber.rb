@@ -3,17 +3,18 @@ module ActiveRecordSharding
     extend ActiveSupport::Concern
 
     included do
-      class << self
-      end
+      alias_method_chain :sql, :shard
+      MAGENTA = "\e[35m"
+      CYAN    = "\e[36m"
     end
 
-    def sql(event)
+    def sql_with_shard(event)
       self.class.runtime += event.duration
       return unless logger.debug?
 
       payload = event.payload
 
-      return if IGNORE_PAYLOAD_NAMES.include?(payload[:name])
+      return if ActiveRecord::LogSubscriber::IGNORE_PAYLOAD_NAMES.include?(payload[:name])
 
       name  = "#{payload[:name]} (#{event.duration.round(1)}ms)"
       sql   = payload[:sql]
@@ -36,10 +37,6 @@ module ActiveRecordSharding
       end
 
       debug "  #{name} #{database}  #{sql}#{binds}"
-    end
-
-    module ClassMethods
-
     end
   end
 end
