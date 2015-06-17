@@ -52,6 +52,7 @@ ActiveRecord::Base.establish_connection(:default)
     raise "ActiveRecord::Base didn't establish connection lazily!"
   end
 end
+
 ActiveRecord::Base.connection # Create connection
 
 
@@ -122,7 +123,7 @@ RSpec.describe ActiveRecordSharding::Model do
 
   before(:each) do
     allow(ActiveRecordSharding::Config).to receive(:file) { "./spec/shards.yml" }
-    ActiveRecordSharding::Config.load!
+   ActiveRecordSharding::Config.load!
   end
 
   it "default connection" do
