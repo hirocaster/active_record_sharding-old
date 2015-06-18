@@ -15,6 +15,8 @@ module ActiveRecordSharding
 end
 
 ActiveSupport.on_load(:active_record) do
+  require "active_record_sharding/config"
+
   require "active_record_sharding/model"
   ActiveRecord::Base.send(:include, ActiveRecordSharding::Model)
 

@@ -12,7 +12,8 @@ module ActiveRecordSharding
 
     def checkout(name, id)
       id = 0 unless id
-      proxies["#{name}_#{id.modulo(Config.shard_count(name))}"] ||= Proxy.new(name, id)
+      key_id = id.modulo(Config.shard_count(name))
+      proxies["#{name}_#{key_id}"] ||= Proxy.new(name, key_id)
     end
 
     # def self.find(name)
