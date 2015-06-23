@@ -24,9 +24,12 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "pry"
   # spec.add_development_dependency "pry-byebug"
   spec.add_development_dependency "sqlite3"
+  spec.add_development_dependency"parallel"
+  spec.add_development_dependency "awesome_print"
 
   spec.add_dependency "activerecord", ">= 4.2"
   spec.add_dependency "activesupport", ">= 4.2"
   spec.add_dependency "memoist"
   spec.add_dependency "mysql2"
+  spec.add_dependency "request_store"
 end

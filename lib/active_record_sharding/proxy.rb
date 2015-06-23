@@ -34,8 +34,8 @@ module ActiveRecordSharding
     end
 
     def model_for_connection
-      ProxyRepository.checkout(@current_name, @id)
       if model_name
+        ProxyRepository.checkout(@current_name, @id)
         Proxy.const_get(key(model_name, @id))
       else
         ActiveRecord::Base

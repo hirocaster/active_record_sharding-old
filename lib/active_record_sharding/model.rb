@@ -1,3 +1,5 @@
+require "request_store"
+
 require "active_record_sharding/proxy_repository"
 require "active_record_sharding/sequencer_repository"
 
@@ -92,11 +94,11 @@ module ActiveRecordSharding
       end
 
       def sequence_id
-        @sequence_id || nil
+        RequestStore.store["#{shard_name}_sequence_id"] || nil
       end
 
       def sequence_id=(new_record_id)
-        @sequence_id = new_record_id
+        RequestStore.store["#{shard_name}_sequence_id"] = new_record_id
       end
     end
   end
