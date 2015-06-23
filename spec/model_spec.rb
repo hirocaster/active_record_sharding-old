@@ -48,7 +48,6 @@ ActiveRecord::Base.configurations = {
   'user_comment_sequence_test' => base.merge(database: 'user_comment_sequence_test')
 }
 
-ActiveRecord::Base.establish_connection(:default)
 
 [Book, User, ActiveRecord::Base].each do |model|
   if model.connected?
@@ -87,7 +86,12 @@ create_comments_sql = "CREATE TABLE comments (`id` INT(11) NOT NULL auto_increme
   ActiveRecord::Base.establish_connection(db_conn_name).connection.execute create_comments_sql
 end
 
+
+ActiveRecord::Base.establish_connection(:default)
 ActiveRecord::Base.connection # Create connection
+
+create_books_sql = "CREATE TABLE books (`id` INT(11) auto_increment, `name` VARCHAR(255), PRIMARY KEY (`id`))"
+ActiveRecord::Base.connection.execute create_books_sql
 
 RSpec.configure do |config|
   if config.files_to_run.one?
@@ -173,6 +177,50 @@ RSpec.describe ActiveRecordSharding::Model do
       it "one query" do
         # FIXME: write test
         Article.where(user_id: 1).all_shard
+      end
+
+      describe "#exsists?" do
+        context "not shard object" do
+
+          it "returns true" do
+            book = Book.create
+            expect(Book.exists?).to be true
+            expect(Book.exists?(book.id)).to be true
+          end
+
+          it "returns false" do
+            expect(Book.exists?(false)).to be false
+            expect(Book.exists?(Book.last.id + 1)).to be false
+          end
+        end
+
+        context "shard object" do
+          it "returns true" do
+            expect(User.exists?(1)).to be true
+            expect(User.exists?(2)).to be true
+            expect(User.exists?(3)).to be true
+
+            expect(User.exists?('1')).to be true
+            expect(User.exists?('2')).to be true
+            expect(User.exists?('3')).to be true
+
+            expect(User.exists?(['name LIKE ?', "%ali%"])).to be true
+            expect(User.exists?(['name LIKE ?', "%bo%"])).to be true
+            expect(User.exists?(['name LIKE ?', "%ca%"])).to be true
+
+            expect(User.exists?(name: "alice")).to be true
+            expect(User.exists?(name: "bob")).to be true
+            expect(User.exists?(name: "carol")).to be true
+
+            expect(User.exists?(id: [1, 2])).to be true
+          end
+
+          it "returns false" do
+            expect(User.exists?(false)).to be false
+            expect(User.exists?('test')).to be false
+            expect(User.exists?(id: [1, 99])).to be false
+          end
+        end
       end
 
       describe "#find(Array)" do
