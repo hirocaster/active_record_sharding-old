@@ -6,11 +6,49 @@ module ActiveRecordSharding
       class << self
         alias_method_chain :find, :shard
         alias_method_chain :find_by, :shard
+        alias_method_chain :exists?, :shard
       end
 
     end
 
     module ClassMethods
+      def exists_with_shard?(conditions = :none)
+        return false if !conditions
+
+        if shard_name
+          case conditions
+          when Array # User.exists?(['name LIKE ?', "%ali%"])
+            result = (1..Config.shards[shard_name].count).map do |id|
+              self.sequence_id = id
+              exists_without_shard?(conditions)
+            end
+            result.any?
+          when Hash
+            if conditions.has_key? :id # User.exists?(id: [1, 2])
+              results = conditions[:id].map do |id|
+                         self.sequence_id = id
+                         exists_without_shard?(id)
+              end
+              results.all?
+            else # User.exists?(name: "alice")
+              results = (1..Config.shards[shard_name].count).map do |id|
+                self.sequence_id = id
+                exists_without_shard?(conditions)
+              end.flatten
+              results.any?
+            end
+          when Fixnum # User.exists?(1)
+            self.sequence_id = conditions
+            exists_without_shard?(conditions)
+          when String # User.exists?('1')
+            self.sequence_id = conditions.to_i
+            exists_without_shard?(conditions)
+          end
+        else
+          exists_without_shard?(conditions)
+        end
+      end
+
       def find_with_shard(*ids)
         if ids.size == 1 && ids.first.is_a?(Fixnum) # find(1)
           if shard_name

@@ -43,7 +43,14 @@ module ActiveRecordSharding
     end
 
     def connection
-      ActiveRecord::Base.establish_connection("#{@shard_name}_#{@model}_sequence_#{Config.environment}".to_sym).connection
+      base = Class.new(ActiveRecord::Base)
+      Sequencer.const_set(const_key, base)
+      base.establish_connection("#{@shard_name}_#{@model}_sequence_#{Config.environment}".to_sym).connection
+      Sequencer.const_get(const_key).connection
+    end
+
+    def const_key
+      "#{@shard_name}_#{@model}".upcase
     end
 
     memoize :current_id, :connection
