@@ -38,8 +38,16 @@ module ActiveRecordSharding
               results.any?
             end
           when Fixnum # User.exists?(1)
-            self.sequence_id = conditions
-            exists_without_shard?(conditions)
+            if self.reflections[shard_name.to_s].class == ActiveRecord::Reflection::BelongsToReflection # belongs_to
+              result = (1..Config.shards[shard_name].count).map do |id|
+                         self.sequence_id = id
+                         exists_without_shard?(conditions)
+              end
+              result.any?
+            else
+              self.sequence_id = conditions
+              exists_without_shard?(conditions)
+            end
           when String # User.exists?('1')
             self.sequence_id = conditions.to_i
             exists_without_shard?(conditions)
@@ -52,9 +60,21 @@ module ActiveRecordSharding
       def find_with_shard(*ids)
         if ids.size == 1 && ids.first.is_a?(Fixnum) # find(1)
           if shard_name
-            self.sequence_id = ids.first
+            if shard_belongs
+              result = (1..Config.shards[shard_name].count).map do |id|
+                         self.sequence_id = id
+                         find_by_id(*ids)
+                       end.flatten.compact
+              if result.present?
+                return result.first
+              else
+                raise ActiveRecord::RecordNotFound
+              end
+            else
+              self.sequence_id = ids.first
+              return find_without_shard(*ids)
+            end
           end
-          return find_without_shard(*ids)
         end
 
         if ids.size == 1 && ids.first.is_a?(Array) # find([1, 2, 3])

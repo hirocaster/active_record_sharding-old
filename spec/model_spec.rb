@@ -136,7 +136,6 @@ RSpec.describe ActiveRecordSharding::Model do
     it "shard_1, shard_2, shard_3" do
       alice = User.create(name: "alice")
       expect(alice.class).to connect_to "user_shard_2_test"
-
       alice_profile = Article.new(title: "Alice profile", body: "Alice profile text")
       alice.articles << alice_profile
       expect(alice_profile.class).to connect_to "user_shard_2_test"
@@ -166,13 +165,39 @@ RSpec.describe ActiveRecordSharding::Model do
       expect(User.create(name: "ellen").class).to connect_to "user_shard_3_test"
     end
 
-    it "raise not set user_id(shard key) create record for shard" do
-      expect do
-        Article.create(title: "Bob profile", body: "Bob profile text")
-      end.to raise_error(ActiveRecordSharding::NotFoundShardKeyError, "Please, set user_id.")
+    context "Article belongs_to User shard object" do
+      it "raise not set user_id(shard key) create record for shard" do
+        expect do
+          Article.create(title: "Bob profile", body: "Bob profile text")
+        end.to raise_error(ActiveRecordSharding::NotFoundShardKeyError, "Please, set user_id.")
+      end
     end
 
     context "Created users and articles" do
+
+      it "bob write comment for alice's article" do
+        bob = User.where(name: "bob").all_shard.first
+        article = User.where(name: "alice").all_shard.first.articles.first
+        comment = Comment.create(comment: "Hello, alice.", article: article, user: bob)
+        expect(comment.class).to  connect_to "user_shard_2_test"
+        expect(Comment.find(comment.id).user.class).to eq User
+      end
+
+      it "carol write comment for bob's article" do
+        carol = User.where(name: "carol").all_shard.first
+        article = User.where(name: "bob").all_shard.first.articles.first
+        comment = Comment.create(comment: "Hello, bob.", article: article, user: carol)
+        expect(comment.class).to  connect_to "user_shard_3_test"
+        expect(Comment.find(comment.id).user.class).to eq User
+      end
+
+      it "alice write comment for carol's article" do
+        alice = User.where(name: "alice").all_shard.first
+        article = User.where(name: "carol").all_shard.first.articles.first
+        comment = Comment.create(comment: "Hello, carol.", article: article, user: alice)
+        expect(comment.class).to  connect_to "user_shard_1_test"
+        expect(Comment.find(comment.id).user.class).to eq User
+      end
 
       it "one query" do
         # FIXME: write test
@@ -190,35 +215,83 @@ RSpec.describe ActiveRecordSharding::Model do
 
           it "returns false" do
             expect(Book.exists?(false)).to be false
+            Book.create
             expect(Book.exists?(Book.last.id + 1)).to be false
           end
         end
 
         context "shard object" do
-          it "returns true" do
+          it "returns true, User#exists?(Fixnum)" do
             expect(User.exists?(1)).to be true
             expect(User.exists?(2)).to be true
             expect(User.exists?(3)).to be true
+          end
 
-            expect(User.exists?('1')).to be true
-            expect(User.exists?('2')).to be true
-            expect(User.exists?('3')).to be true
+          it "returns true, Article#exists?(Fixnum)" do
+            expect(Article.exists?(1)).to be true
+            expect(Article.exists?(2)).to be true
+            expect(Article.exists?(3)).to be true
+          end
 
+          it "returns true, Comment#exists?(Fixnum)" do
+            expect(Comment.exists?(1)).to be true
+            expect(Comment.exists?(2)).to be true
+            expect(Comment.exists?(3)).to be true
+          end
+
+          it "returns true, User#exists?(Array)" do
             expect(User.exists?(['name LIKE ?', "%ali%"])).to be true
             expect(User.exists?(['name LIKE ?', "%bo%"])).to be true
             expect(User.exists?(['name LIKE ?', "%ca%"])).to be true
+          end
 
+          it "returns true, Article#exists?(Array)" do
+            expect(Article.exists?(['title LIKE ?', "%ali%"])).to be true
+            expect(Article.exists?(['title LIKE ?', "%bo%"])).to be true
+            expect(Article.exists?(['title LIKE ?', "%ca%"])).to be true
+          end
+
+          it "returns true, Comment#exists?(Array)" do
+            expect(Comment.exists?(['comment LIKE ?', "%ali%"])).to be true
+            expect(Comment.exists?(['comment LIKE ?', "%bo%"])).to be true
+            expect(Comment.exists?(['comment LIKE ?', "%ca%"])).to be true
+          end
+
+          it "returns true, User#exists?(Hash)" do
             expect(User.exists?(name: "alice")).to be true
             expect(User.exists?(name: "bob")).to be true
             expect(User.exists?(name: "carol")).to be true
-
             expect(User.exists?(id: [1, 2])).to be true
           end
 
-          it "returns false" do
+          it "returns true, Article#exists?(Hash)" do
+            expect(Article.exists?(title: "Alice profile")).to be true
+            expect(Article.exists?(title: "Bob profile")).to be true
+            expect(Article.exists?(title: "Carol profile")).to be true
+            expect(Article.exists?(id: [1, 2])).to be true
+          end
+
+          it "returns true, Comment#exists?(Hash)" do
+            expect(Comment.exists?(comment: "Hello, alice.")).to be true
+            expect(Comment.exists?(comment: "Hello, bob.")).to be true
+            expect(Comment.exists?(comment: "Hello, carol.")).to be true
+          end
+
+          it "returns false, etc" do
             expect(User.exists?(false)).to be false
             expect(User.exists?('test')).to be false
             expect(User.exists?(id: [1, 99])).to be false
+            expect(Article.exists?(false)).to be false
+            expect(Article.exists?('test')).to be false
+            expect(Article.exists?(id: [1, 99])).to be false
+            expect(Comment.exists?(false)).to be false
+            expect(Comment.exists?('test')).to be false
+            expect(Comment.exists?(id: [1, 99])).to be false
+          end
+
+          it "returns raise" do
+            expect { Article.find(99999) }.to raise_error(ActiveRecord::RecordNotFound)
+            expect { Comment.find(99999) }.to raise_error(ActiveRecord::RecordNotFound)
           end
         end
       end
@@ -277,14 +350,6 @@ RSpec.describe ActiveRecordSharding::Model do
           article = User.where(name: "carol").all_shard.first.articles.first
           expect(article.class).to eq Article
         end
-      end
-
-      it "bob write comment for alice's article" do
-        bob = User.where(name: "bob").all_shard.first
-        article = User.where(name: "alice").all_shard.first.articles.first
-        comment = Comment.create(comment: "Hello, alice.", article: article, user: bob)
-        expect(comment.class).to  connect_to "user_shard_2_test"
-        expect(Comment.all_shard.first.user.class).to eq User
       end
 
       it "#find(Fixnum)" do
