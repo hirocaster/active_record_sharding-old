@@ -40,6 +40,9 @@ ActiveSupport.on_load(:active_record) do
 
   require "active_record_sharding/log_subscriber"
   ActiveRecord::LogSubscriber.send(:include, ActiveRecordSharding::LogSubscriber)
+
+  require "active_record_sharding/relation"
+  ActiveRecord::Relation.send(:include, ActiveRecordSharding::Relation)
 end
 
 ActiveSupport.on_load(:rails) do

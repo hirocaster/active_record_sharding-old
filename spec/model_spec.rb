@@ -293,6 +293,12 @@ RSpec.describe ActiveRecordSharding::Model do
             expect { Article.find(99999) }.to raise_error(ActiveRecord::RecordNotFound)
             expect { Comment.find(99999) }.to raise_error(ActiveRecord::RecordNotFound)
           end
+
+          it "#where" do
+            expect(User.where(id: 1).first.class).to connect_to "user_shard_2_test"
+            expect(User.where(id: 2).first.class).to connect_to "user_shard_3_test"
+            expect(User.where(id: 3).first.class).to connect_to "user_shard_1_test"
+          end
         end
       end
 
