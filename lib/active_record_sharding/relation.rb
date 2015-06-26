@@ -10,10 +10,12 @@ module ActiveRecordSharding
 
     def where(opts = :chain, *rest)
       if shard_name && (opts.class == Hash)
-        if shard_belongs
-        else
+        unless shard_belongs
           if opts.has_key?(:id)
             self.sequence_id = opts[:id]
+          end
+          if opts.has_key?("#{shard_name.to_s}_id".to_sym)
+            self.sequence_id = opts["#{shard_name.to_s}_id".to_sym]
           end
         end
       end
