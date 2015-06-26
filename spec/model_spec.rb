@@ -302,6 +302,11 @@ RSpec.describe ActiveRecordSharding::Model do
             expect(Article.where(user_id: 1).first.class).to connect_to "user_shard_2_test"
             expect(Article.where(user_id: 2).first.class).to connect_to "user_shard_3_test"
             expect(Article.where(user_id: 3).first.class).to connect_to "user_shard_1_test"
+
+            bob = User.find 2
+            article = Article.new(title: "Bob 2nd Article", body: "2nd Article")
+            bob.articles << article
+            expect(Article.where(id: article.id, user_id: 2).first.class).to connect_to "user_shard_3_test"
           end
         end
       end
