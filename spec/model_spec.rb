@@ -307,6 +307,14 @@ RSpec.describe ActiveRecordSharding::Model do
             article = Article.new(title: "Bob 2nd Article", body: "2nd Article")
             bob.articles << article
             expect(Article.where(id: article.id, user_id: 2).first.class).to connect_to "user_shard_3_test"
+
+            expect(User.where(id: [1, 2]).to_a.count).to eq 2
+          end
+
+          context "Not support method pattern" do
+            it "returns NotSupportException" do
+              expect{ User.where(id: [1, 2]) }.to raise_error(ActiveRecordSharding::NotSupportException)
+            end
           end
         end
       end
