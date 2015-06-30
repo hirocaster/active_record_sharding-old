@@ -8,8 +8,8 @@ Gem::Specification.new do |spec|
   spec.version       = ActiveRecordSharding::VERSION
   spec.authors       = ["hirocaster"]
   spec.email         = ["hohtsuka@gmail.com"]
-  spec.summary       = %q{TODO: Write a short summary. Required.}
-  spec.description   = %q{TODO: Write a longer description. Optional.}
+  spec.summary       = %q{modulo algorithm based shading database library for ActiveRecord.}
+  spec.description   = %q{modulo algorithm based shading database library for ActiveRecord.}
   spec.homepage      = ""
   spec.license       = "MIT"
 
