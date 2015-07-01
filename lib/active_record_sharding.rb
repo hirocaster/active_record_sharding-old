@@ -3,6 +3,7 @@ require "active_support/concern"
 
 require "active_record_sharding/version"
 require "active_record_sharding/error"
+require "active_record_sharding/config"
 
 module ActiveRecordSharding
   if defined? Rails::Railtie
@@ -15,8 +16,6 @@ module ActiveRecordSharding
 end
 
 ActiveSupport.on_load(:active_record) do
-  require "active_record_sharding/config"
-
   require "active_record_sharding/model"
   ActiveRecord::Base.send(:include, ActiveRecordSharding::Model)
 
