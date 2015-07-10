@@ -1,3 +1,5 @@
+require 'singleton'
+
 module ActiveRecordSharding
   class Config
     include Singleton
