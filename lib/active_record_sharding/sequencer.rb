@@ -44,8 +44,10 @@ module ActiveRecordSharding
 
     def connection
       base = Class.new(ActiveRecord::Base)
-      Sequencer.const_set(const_key, base)
-      base.establish_connection("#{@shard_name}_#{@model}_sequence_#{Config.environment}".to_sym).connection
+      unless Sequencer.const_defined? const_key
+        Sequencer.const_set(const_key, base)
+        base.establish_connection("#{@shard_name}_#{@model}_sequence_#{Config.environment}".to_sym).connection
+      end
       Sequencer.const_get(const_key).connection
     end
 
