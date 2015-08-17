@@ -425,6 +425,24 @@ RSpec.describe ActiveRecordSharding::Model do
         expect(carol.name).to eq "carol"
       end
 
+      describe "Transaction" do
+        context "rollback" do
+          it "skip id sequencer at roolback" do
+            user = nil
+            rollback_user = nil
+            User.transaction do
+              user = User.create
+              User.transaction do
+                rollback_user = User.create
+                raise ActiveRecord::Rollback
+              end
+            end
+            expect(rollback_user.id).to be nil
+            expect(User.create().id).to eq user.id + 2
+          end
+        end
+      end
+
       context "multi process" do
         it "#find by 3 process" do
           Parallel.map(['a','b','c'], in_processes: 3) do
