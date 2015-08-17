@@ -15,7 +15,7 @@ module ActiveRecordSharding
       def exists_with_shard?(conditions = :none)
         return false if !conditions
 
-        if shard_name
+        if self.sharding?
           case conditions
           when Array # User.exists?(['name LIKE ?', "%ali%"])
             result = (1..Config.shards[shard_name].count).map do |id|

@@ -7,7 +7,12 @@ ActiveRecord::Base.logger = Logger.new(STDOUT)
 
 ActiveRecordSharding::Config.file = "./spec/shards.yml"
 
+class Publisher < ActiveRecord::Base
+  has_many :books
+end
+
 class Book < ActiveRecord::Base
+  belongs_to :publisher
 end
 
 class User < ActiveRecord::Base
@@ -55,6 +60,17 @@ ActiveRecord::Base.configurations = {
   end
 end
 
+
+drop_table_sql = "DROP TABLE IF EXISTS publishers"
+ActiveRecord::Base.establish_connection(:default).connection.execute drop_table_sql
+create_publishers_table_sql = "CREATE TABLE publishers (`id` INT(11) NOT NULL auto_increment, `name` VARCHAR(255), PRIMARY KEY (`id`))"
+ActiveRecord::Base.establish_connection(:default).connection.execute create_publishers_table_sql
+
+drop_table_sql = "DROP TABLE IF EXISTS books"
+ActiveRecord::Base.establish_connection(:default).connection.execute drop_table_sql
+create_books_table_sql = "CREATE TABLE books (`id` INT(11) NOT NULL auto_increment, `name` VARCHAR(255),`publisher_id` INT(11), PRIMARY KEY (`id`))"
+ActiveRecord::Base.establish_connection(:default).connection.execute create_books_table_sql
+
 [:user_user_sequence_test, :user_article_sequence_test, :user_comment_sequence_test].each do |db_conn_name|
   [:user_user_sequence, :user_article_sequence, :user_comment_sequence].each do |sequence|
     drop_table_sql = "DROP TABLE IF EXISTS #{sequence.to_s}"
@@ -89,9 +105,6 @@ end
 
 ActiveRecord::Base.establish_connection(:default)
 ActiveRecord::Base.connection # Create connection
-
-create_books_sql = "CREATE TABLE books (`id` INT(11) auto_increment, `name` VARCHAR(255), PRIMARY KEY (`id`))"
-ActiveRecord::Base.connection.execute create_books_sql
 
 RSpec.configure do |config|
   if config.files_to_run.one?
@@ -217,6 +230,20 @@ RSpec.describe ActiveRecordSharding::Model do
             expect(Book.exists?(false)).to be false
             Book.create
             expect(Book.exists?(Book.last.id + 1)).to be false
+          end
+
+          context "association object" do
+            let(:book) do
+              Book.create
+            end
+            it "Book object associate Publisher object" do
+              publisher = Publisher.create name: "foobar publish"
+              expect(publisher).to be_kind_of(Publisher)
+              book.publisher = publisher
+              book.save
+              expect(book.publisher).to be_kind_of(Publisher)
+              expect(book.publisher_id).to eq publisher.id
+            end
           end
         end
 
