@@ -30,6 +30,9 @@ ActiveSupport.on_load(:active_record) do
   require "active_record_sharding/base"
   ActiveRecord::Base.send(:include, ActiveRecordSharding::Base)
 
+  require "active_record_sharding/transactions"
+  ActiveRecord::Base.send(:include, ActiveRecordSharding::Transactions)
+
   require "active_record_sharding/association"
   ActiveRecord::Associations::Builder::Association.send(:include, ActiveRecordSharding::Association)
 

@@ -360,7 +360,7 @@ RSpec.describe ActiveRecordSharding::Model do
         end
 
         it "raise exception ActiveRecord::RecordNotFound found 1,2 but not found 9" do
-          expect { User.find([1, 2, 9]) }.to raise_error(ActiveRecord::RecordNotFound)
+          expect { User.find([1, 2, 999]) }.to raise_error(ActiveRecord::RecordNotFound)
         end
       end
 
@@ -423,6 +423,43 @@ RSpec.describe ActiveRecordSharding::Model do
         carol = User.where(name: "carol").all_shard.first
         expect(carol.class).to eq User
         expect(carol.name).to eq "carol"
+      end
+
+      describe "Transaction" do
+        context "rollback" do
+          it "skip id sequencer at roolback" do
+            user = nil
+            rollback_user = nil
+            User.transaction_next_shard do
+              user = User.create
+              User.transaction_next_shard do
+                rollback_user = User.create
+                raise ActiveRecord::Rollback
+              end
+            end
+            expect(rollback_user.id).to be nil
+            expect(User.create().id).to eq user.id + 2
+          end
+        end
+        describe "for sharding databases" do
+          let(:shard_keys) { 3.times.map { User.create(name: "test_name").id } }
+          before do
+            shard_keys.each do |shard_key|
+              User.transaction_for_shard(shard_key) do
+                user = User.find shard_key
+                user.name = "name in transaction #{rand(999)}"
+                user.save
+                raise ActiveRecord::Rollback
+              end
+            end
+          end
+
+          it "retuns name, before transaction" do
+            shard_keys.each do |shard_key|
+              expect(User.find(shard_key).name).to eq "test_name"
+            end
+          end
+        end
       end
 
       context "multi process" do
