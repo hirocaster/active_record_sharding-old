@@ -138,6 +138,30 @@ class User < ActiveRecord::Base
 end
 ```
 
+### Transaction
+
+exists sharding record
+
+```ruby
+shard_keys = 3.times.map { User.create(name: "test_name").id }
+
+User.transaction_for_shard(shard_key) do # begin transaction for shard_key node
+  user = User.find shard_key
+  user.name = "name in transaction #{rand(999)}"
+  user.save
+  # others...
+end
+```
+
+new sharding record
+
+```ruby
+User.transaction_next_shard do # begin transaction for next record shard node
+  user = User.create
+  # others...
+end
+```
+
 ## Contributing
 
 1. Fork it ( http://github.com/hirocaster/active_record_sharding/fork )
